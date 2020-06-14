@@ -18,17 +18,32 @@ public class SoloGameScreen extends GameScreen {
 
     Engine engine;
 
+    int engineDifficulty;
+
+
     //UI elements
     Label colorL;
     Label moveL;
 
-    SoloGameScreen(ScreenControler c) {
+    Thread engineThreat;
+
+
+
+    SoloGameScreen(ScreenControler c, int clr, int diff) {
         super(c);
+
+        if(clr == 0){
+            int r = ThreadLocalRandom.current().nextInt(0, 1000);
+            playerColor = (r>500)?1:0;
+        }else{
+            playerColor = clr - 1;
+        }
+        engineDifficulty = diff;
         init();
         if (playerColor != toMove) {
-            Runnable response = new AIResponse(this, engine, gameBoard);
-            Thread thread = new Thread(response);
-            thread.start();
+            Runnable response = new AIResponse(this, engine, gameBoard, engineDifficulty);
+            engineThreat = new Thread(response);
+            engineThreat.start();
         }
     }
 
@@ -36,9 +51,7 @@ public class SoloGameScreen extends GameScreen {
 
     void init(){
         toMove = 0;
-        int r = ThreadLocalRandom.current().nextInt(0, 1000);
-        playerColor = (r>500)?1:0;
-        engine = new Engine(-playerColor+1);
+        engine = new Engine(-playerColor+1, engineDifficulty);
         setSideMenu();
         boardSP.setOnMouseClicked(event ->{
             int x = ((int)event.getX()) / 60;
@@ -64,7 +77,11 @@ public class SoloGameScreen extends GameScreen {
         moveL.setStyle("-fx-border-width: 1; -fx-border-style: solid;");
         uiVB.getChildren().add(moveL);
 
-        Button exitButton = new Button("Quit match");
+        Button exitButton = addUIButton("Quit Match");
+        exitButton.setOnAction(actionEvent -> {
+            engineThreat.interrupt();
+            controler.changeScene(new MainMenu(controler));
+        });
         uiVB.getChildren().add(exitButton);
         updateSideMenu();
     }
@@ -111,9 +128,9 @@ public class SoloGameScreen extends GameScreen {
                             alert.showAndWait();
                         }
                         else{
-                            Runnable ai = new AIResponse(this, engine, gameBoard);
-                            Thread thread = new Thread(ai);
-                            thread.start();
+                            Runnable ai = new AIResponse(this, engine, gameBoard, engineDifficulty);
+                            engineThreat = new Thread(ai);
+                            engineThreat.start();
                         }
                     }
                 }

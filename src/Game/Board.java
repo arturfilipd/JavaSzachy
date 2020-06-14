@@ -15,10 +15,13 @@ public class Board {
    // public LinkedList<Piece> pieces = new LinkedList<>();
 
 
-
-
-    public float[] eval;
     public void setUp() {
+
+        for(int x = 0; x < 8; x++)
+            for (int y = 0; y < 8; y++){
+                field[x][y] = null;
+            }
+
         move = 0;
         for(int i = 0; i < 8; i++) {
             addPiece( new Pawn(i,1,0,this));
@@ -76,7 +79,6 @@ public class Board {
         pc.board = this;
 
         field[p.getX()][p.getY()] = pc;
-        //pieces.add(pc);
         return pc;
     }
 
@@ -277,6 +279,8 @@ public class Board {
         }
         return pieces;
     }
+
+
 
 
 

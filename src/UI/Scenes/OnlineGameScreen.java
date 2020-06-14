@@ -30,6 +30,7 @@ public class OnlineGameScreen extends GameScreen {
     //UI elements
     Label colorL;
     Label moveL;
+    Button forfeitButton;
 
     public OnlineGameScreen(ScreenControler c, Socket sc, Server sv, int color) throws IOException {
         super(c);
@@ -80,7 +81,24 @@ public class OnlineGameScreen extends GameScreen {
         moveL.setStyle("-fx-border-width: 1; -fx-border-style: solid;");
         uiVB.getChildren().add(moveL);
 
-        Button exitButton = new Button("Quit match");
+        forfeitButton = addUIButton("Forfeit");
+        uiVB.getChildren().add(forfeitButton);
+        forfeitButton.setOnAction(actionEvent -> {
+            if(!finished){
+                writer.println("END");
+                writer.flush();
+            }
+            if(isHost) {
+                try {
+                    gameserver.cancel();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            updateSideMenu();
+        });
+
+        Button exitButton = addUIButton("Exit");
         uiVB.getChildren().add(exitButton);
         exitButton.setOnAction(actionEvent -> {
             if(!finished){
@@ -112,6 +130,12 @@ public class OnlineGameScreen extends GameScreen {
         }
         if(toMove == playerColor){moveL.setText("Your move"); }
         else{moveL.setText("Waiting for the opponent...");}
+        if(finished){
+            if(result == 1) moveL.setText("Victory");
+            if(result == 0) moveL.setText("Draw");
+            if(result == -1) moveL.setText("Defeat");
+        }
+        if(finished) if(uiVB.getChildren().contains(forfeitButton)) uiVB.getChildren().remove(forfeitButton);
     }
 
     void parseClickOnBoard(int x, int y){
@@ -140,6 +164,8 @@ public class OnlineGameScreen extends GameScreen {
                             alert.setTitle("Game Over");
                             alert.setHeaderText("Checkmate!");
                             alert.showAndWait();
+                            finished = true;
+                            result = 1;
                         }
                         else{
                             Runnable response = new Response(socket, this);
@@ -154,15 +180,15 @@ public class OnlineGameScreen extends GameScreen {
 
 
 
-
     @Override
     public void readResponse(String msg){
-        if(msg.equals("END")){
+        if(msg.equals("END") && !finished){
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Game Over");
             alert.setHeaderText("Your opponent has left the game.");
             alert.showAndWait();
             finished = true;
+            result = 1;
         }
         else {
             int sx = msg.charAt(0) - '0';

@@ -40,14 +40,11 @@ public class Piece {
     }
 
     public void promote(){
-        if(type == 0)
-            type = 4;
+        if(type == 0){
+            board.field[pos_x][pos_y] = new Queen(pos_x, pos_y, color, board);
+        }
     }
 
-    public void forceMove(int x, int y){//!!!
-        pos_x = x;
-        pos_y = y;
-    }
 
     public int isMoveLegal(int dest_x, int dest_y) {
         /*
@@ -88,12 +85,6 @@ public class Piece {
     }
 
     Piece(){}
-
-
-    //boolean equals(Piece p){
-    //   if (pos_x == p.getX() && pos_y == p.getY()) return true;
-    //    return false;
-    // }
 }
 
 class Pawn extends Piece {
@@ -142,10 +133,23 @@ class Pawn extends Piece {
         }
         return 0;
     }
+
+    @Override
+    public int countPossibleMoves(){
+        int n = 0;
+        int mod = (color==0)?1:-1;
+        if (color == 0){
+            if(board.field[pos_x][pos_y+mod] == null || board.field[pos_x][pos_y+mod].color != color) n++;
+            if((pos_y<6 && color == 0) ||(pos_y>1 && color == 1))
+                if(board.field[pos_x][pos_y+mod] == null || board.field[pos_x][pos_y+mod].color != color) n++;
+        }
+        return n;
+    }
+
 }
 
-class Rook extends Piece{
-    Rook(int pos_x, int pos_y, int color, Board b){
+class Rook extends Piece {
+    Rook(int pos_x, int pos_y, int color, Board b) {
         type = 3;
         this.color = color;
         this.pos_x = pos_x;
@@ -154,7 +158,7 @@ class Rook extends Piece{
         moves = 0;
     }
 
-    Rook(Piece p){
+    Rook(Piece p) {
         color = p.color;
         moves = p.moves;
         type = p.type;
@@ -165,36 +169,56 @@ class Rook extends Piece{
 
 
     public int isMoveLegal(int dest_x, int dest_y) {
-        if(dest_x == pos_x ^ dest_y == pos_y) {
+        if (dest_x == pos_x ^ dest_y == pos_y) {
             int dist = dest_x + dest_y - pos_x - pos_y;
             int dir = 1;
             if (dist < 0) {
                 dir = -1;
-                dist= -dist;
+                dist = -dist;
             }
+
             //Horizontal
-            if(dest_y == pos_y) {
-                for(int i = 1; i <= dist-1; i++) {
-                    if(board.field[pos_x+(i*dir)][pos_y] != null)
+            if (dest_y == pos_y) {
+                for (int i = 1; i <= dist - 1; i++) {
+                    if (board.field[pos_x + (i * dir)][pos_y] != null)
                         return 0;
                 }
             }
             //Vertical
-            if(dest_x == pos_x) {
-                for(int i = 1; i < dist; i++) {
-                    if(board.field[pos_x][pos_y+(i*dir)] != null)
+            if (dest_x == pos_x) {
+                for (int i = 1; i < dist; i++) {
+                    if (board.field[pos_x][pos_y + (i * dir)] != null)
                         return 0;
                 }
             }
+
             //Checking Capture
-            if(board.field[dest_x][dest_y] != null) {
-                if(board.field[dest_x][dest_y].IsFriendly(this))
+            if (board.field[dest_x][dest_y] != null) {
+                if (board.field[dest_x][dest_y].IsFriendly(this))
                     return 0;
                 return -1;
             }
             return 1;
         }
         return 0;
+    }
+
+    @Override
+    public int countPossibleMoves() {
+        int n = 0;
+        boolean a = false;
+        boolean b = false;
+        for (int i = 1; i <= pos_x;  i++) {
+            if(!a && i+pos_x < 8) if(board.field[pos_x+i][pos_y] == null) n++; else a = true;
+            if(!b && i-pos_x >= 0) if(board.field[pos_x-i][pos_y] == null) n++; else b = true;
+        }
+        a = false;
+        b = false;
+        for (int i = 1; i <= pos_y;  i++) {
+            if(!a && i+pos_y < 8) if(board.field[pos_x][pos_y+i] == null) n++; else a = true;
+            if(!b && i-pos_y >= 0) if(board.field[pos_x-i][pos_y] == null) n++; else b = true;
+        }
+        return n;
     }
 }
 
@@ -336,20 +360,20 @@ class King extends Piece{
         if(moves == 0) {
             //White Long
             if(color == 0 && dest_x == 2 && dest_y == 0 && board.field[0][0] != null && board.field[1][0] == null && board.field[2][0] == null && board.field[3][0]==null)
-                if(board.field[0][0].moves == 0 && !board.isAttacked(2, 0, 1) && !board.isAttacked(3, 0, 1))
+                if(board.field[0][0].moves == 0 && !board.isAttacked(2, 0, 1) && !board.isAttacked(3, 0, 1) && !board.isAttacked(4, 0, 1))
                     return 2;
             //White Short
             if(color == 0 && dest_x == 6 && dest_y == 0 && board.field[7][0] != null && board.field[5][0] == null && board.field[6][0] == null)
-                if(board.field[7][0].moves == 0 && !board.isAttacked(6, 0, 1) && !board.isAttacked(5, 0, 1))
+                if(board.field[7][0].moves == 0 && !board.isAttacked(6, 0, 1) && !board.isAttacked(5, 0, 1) && !board.isAttacked(4, 0, 1))
                     return 3;
 
             //Black Long
             if(color == 1 && dest_x == 2 && dest_y == 7 && board.field[0][7] != null && board.field[1][7] == null && board.field[2][7] == null && board.field[3][7]==null)
-                if(board.field[0][7].moves == 0 && !board.isAttacked(2, 7, 0) && !board.isAttacked(3, 7, 0))
+                if(board.field[0][7].moves == 0 && !board.isAttacked(2, 7, 0) && !board.isAttacked(3, 7, 0) && !board.isAttacked(4, 7, 0))
                     return 4;
             //Black Short
             if(color == 1 && dest_x == 6 && dest_y == 7 && board.field[7][7] != null && board.field[5][7] == null && board.field[6][7] == null)
-                if(board.field[7][7].moves == 0 && !board.isAttacked(6, 7, 0) && !board.isAttacked(5, 7, 0))
+                if(board.field[7][7].moves == 0 && !board.isAttacked(6, 7, 0) && !board.isAttacked(5, 7, 0) && !board.isAttacked(4, 7, 0))
                     return 5;
         }
 

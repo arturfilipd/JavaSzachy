@@ -11,10 +11,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SplitPane;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -35,6 +32,7 @@ public class GameScreen extends ScreenScene {
     int focusX, focusY;
     boolean focusOn = false;
     boolean finished = false;
+    int result = 0;
 
     StackPane boardSP;
     VBox uiVB;
@@ -81,11 +79,26 @@ public class GameScreen extends ScreenScene {
 
     }
 
+
+    void setTip(int x, int y){
+        highlights[x][7-y].setImage(imagePieces[15]);
+    }
+
+    void clearTips(){
+        for(int x = 0; x < 8; x++)
+            for(int y = 0; y < 8; y++)
+               if(highlights[x][y].getImage() == imagePieces[15]) highlights[x][y].setImage(imagePieces[12]);
+    }
+
+
     void setFocus(int x, int y){
         focusOn = true;
         highlights[x][7-y].setImage(imagePieces[13]);
         focusY = y;
         focusX = x;
+        for (int a = 0; a < 8; a++)
+            for(int b = 0; b < 8; b++)
+                if(gameBoard.field[x][y].isMoveLegal(a, b) != 0) setTip(a, b);
     }
 
     void showMate(int [] pieces){
@@ -105,6 +118,7 @@ public class GameScreen extends ScreenScene {
     void clearFocus(){
         focusOn = false;
         highlights[focusX][7-focusY].setImage(imagePieces[12]);
+        clearTips();
     }
 
 
@@ -166,6 +180,12 @@ public class GameScreen extends ScreenScene {
 
     }
 
+    Button addUIButton(String label){
+        Button b = new Button(label);
+        b.getStyleClass().add("gameButton");
+        b.prefWidthProperty().bind(uiVB.widthProperty());
+        return b;
+    }
 
 
 
