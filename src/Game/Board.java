@@ -179,6 +179,7 @@ public class Board {
                         if(field[dest_x][dest_y].getType() == 0 && field[dest_x][dest_y].getColor() == 1 && dest_y == 0)
                             field[dest_x][dest_y].promote();
 
+                        if(detectCheck(-move+1) == -1) return 0;
                         return 1;
                     }
                     return 0;
@@ -225,6 +226,18 @@ public class Board {
         for (int i = 0; i < 8; i++)
             for (int j = 0; j < 8; j ++)
                 field[i][j] = null;
+    }
+
+    public int[] getPoints(){
+        int[] pts = {0, 0};
+        int[] pieceValues = {1, 3, 3, 4, 9, 0};
+        for(int x = 0; x < 8; x++){
+            for(int y = 0; y < 8; y++) {
+                if (field[x][y] != null)
+                    pts[field[x][y].getColor()] += pieceValues[field[x][y].getType()];
+            }
+        }
+        return pts;
     }
 
 

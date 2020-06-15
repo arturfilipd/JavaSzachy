@@ -22,24 +22,34 @@ public class OnlineScreen extends ScreenScene {
         vb.setAlignment(Pos.BASELINE_LEFT);
         this.scene = new Scene(vb, 680, 480);
 
-
+        vb.setId("pane");
         SplitPane sp = new SplitPane();
-
+        scene.getStylesheets().addAll(this.getClass().getResource("style.css").toExternalForm());
         VBox leftSide = new VBox();
         VBox rightSide = new VBox();
         sp.getItems().addAll(leftSide, rightSide);
+        Button cancelButton = new Button("Cancel");
+        cancelButton.getStyleClass().add("gameButton");
+        VBox v = new VBox();
+        v.getChildren().add(cancelButton);
+        vb.getChildren().add(v);
         vb.getChildren().add(sp);
+
+
 
         leftSide.setAlignment(Pos.BASELINE_CENTER);
         leftSide.setSpacing(25);
+        leftSide.getStyleClass().add("menuPanel");
         leftSide.setPadding(new Insets(25, 25, 25, 25));
         Label leftLabel = new Label("Host a new game");
         leftSide.getChildren().add(leftLabel);
         Button hostButton = new Button("Host");
+        hostButton.getStyleClass().add("gameButton");
         leftSide.getChildren().addAll(hostButton);
 
         rightSide.setAlignment(Pos.BASELINE_CENTER);
         rightSide.setSpacing(25);
+        rightSide.getStyleClass().add("menuPanel");
         rightSide.setPadding(new Insets(25, 25, 25, 25));
         Label r_label = new Label("Join game");
         rightSide.getChildren().add(r_label);
@@ -48,7 +58,11 @@ public class OnlineScreen extends ScreenScene {
         TextField ipField = new TextField();
         hb.getChildren().addAll(ipLabel, ipField);
         Button connectButton = new Button("Connect");
+        connectButton.getStyleClass().add("gameButton");
         rightSide.getChildren().addAll(hb, connectButton);
+
+
+        cancelButton.setOnAction(actionEvent -> controler.changeScene(new MainMenu(controler)));
 
 
         hostButton.setOnAction(actionEvent -> {
@@ -68,6 +82,7 @@ public class OnlineScreen extends ScreenScene {
                 }
             }
         });
-
     }
+
+
 }

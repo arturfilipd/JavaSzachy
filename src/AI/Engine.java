@@ -1,5 +1,6 @@
 package AI;
 import Game.Board;
+import UI.ScreenControler;
 
 import java.util.LinkedList;
 import java.util.Random;
@@ -14,8 +15,6 @@ public class Engine {
 
     public EngineResponse getNextMove(Board b, int depth) {
         if(maxDepth == -1) maxDepth = depth;
-
-
         LinkedList<int[]> possibleMoves = new LinkedList<>();
         for (int sx = 0; sx < 8; sx++) {
             for (int sy = 0; sy < 8; sy++) {
@@ -65,34 +64,36 @@ public class Engine {
             if (val > bestR) {
                 bestR = val; bestM = i; bestVal = r;
             }
-            if (depth == maxDepth && USING_RANDOM_MOVES){
+            if (depth == maxDepth && USING_RANDOM_MOVES ){
                 if(val > best3R[0]) {
                     best3R[2] = best3R[1]; best3R[1] = best3R[0];
                     best3R[0] = val; best3Val[2] = best3Val[1];
                     best3Val[1] = best3Val[0]; best3Val[0] = r;
                     best3M[2] = best3M[1]; best3M[1] = best3M[0]; best3M[0] = i;}
-                else if(val > best3R[1]) {
-                    best3R[2] = best3R[1]; best3R[1] =val;
-                    best3Val[2] = best3Val[1]; best3Val[1] =r;
-                    best3M[2] = best3M[1]; best3M[1] = i;}
-                else if(val > best3R[2]) {
-                    best3R[2] = val; best3Val[2] = r;
-                    best3M[2] = i;}
+                    if(val > best3R[1]) {
+                        best3R[2] = best3R[1]; best3R[1] =val;
+                        best3Val[2] = best3Val[1]; best3Val[1] =r;
+                        best3M[2] = best3M[1]; best3M[1] = i;}
+                    else if(val > best3R[2]) {
+                        best3R[2] = val; best3Val[2] = r;
+                        best3M[2] = i;}
+
             }
             i++;
         }
         int []bestMove = possibleMoves.get(bestM);
-        /*
-        if(depth ==2 ){
-            System.out.println("Best move value is " + bestR + " #" + bestM);
-            System.out.println("Anticipated response: " + bestMove[0] + "-" + bestMove[1] + " -> " + bestMove[2] + "-" + bestMove[3]);
-        }
-
-         */
         if(depth == maxDepth && USING_RANDOM_MOVES){
+            String[] a = {"a", "b", "c", "d", "e", "f", "g", "h"};
+            System.out.println("Three best moves: ");
+            System.out.println("1. " + a[possibleMoves.get(best3M[0])[0]] + (possibleMoves.get(best3M[0])[1]+1) + " -> "  + a[possibleMoves.get(best3M[0])[2]] + (possibleMoves.get(best3M[0])[3]+1) + " " + best3R[0]);
+            System.out.println("2. " + a[possibleMoves.get(best3M[1])[0]] + (possibleMoves.get(best3M[1])[1]+1) + " -> "  + a[possibleMoves.get(best3M[1])[2]] + (possibleMoves.get(best3M[1])[3]+1) + " " + best3R[1]);
+            System.out.println("3. " + a[possibleMoves.get(best3M[2])[0]] + (possibleMoves.get(best3M[2])[1]+1) + " -> "  + a[possibleMoves.get(best3M[2])[2]] + (possibleMoves.get(best3M[2])[3]+1) + " " + best3R[2]);
             Random rand = new Random();
-            int chosenM = rand.nextInt(3);
-            return new EngineResponse(possibleMoves.get(best3M[chosenM]), best3Val[chosenM]);
+            int chosenM = rand.nextInt(100);
+            if(chosenM > 50){
+                chosenM = rand.nextInt(3);
+                return new EngineResponse(possibleMoves.get(best3M[chosenM]), best3Val[chosenM]);
+            }
         }
 
         return new EngineResponse(bestMove, bestVal);

@@ -1,5 +1,6 @@
 package UI.Scenes;
 
+import Game.Board;
 import Server.Server;
 import UI.ScreenControler;
 import Server.Response;
@@ -9,6 +10,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Paint;
 
 import java.io.BufferedReader;
@@ -30,6 +33,8 @@ public class OnlineGameScreen extends GameScreen {
     //UI elements
     Label colorL;
     Label moveL;
+    Label bPts;
+    Label wPts;
     Button forfeitButton;
 
     public OnlineGameScreen(ScreenControler c, Socket sc, Server sv, int color) throws IOException {
@@ -44,8 +49,8 @@ public class OnlineGameScreen extends GameScreen {
         setSideMenu();
         updateSideMenu();
         boardSP.setOnMouseClicked(event ->{
-            int x = ((int)event.getX()) / 60;
-            int y = 7 - ((int)event.getY()) / 60;
+            int x = ((int)event.getX()) / (int)pieceSize;
+            int y = 7 - ((int)event.getY()) / (int)pieceSize;
             if (x >= 0 && x < 8 && y >= 0 && y < 8){
                 parseClickOnBoard(x, y);
             }
@@ -66,6 +71,17 @@ public class OnlineGameScreen extends GameScreen {
 
     }
 
+    @Override
+    public void onExit() {
+        writer.println("END");
+        writer.flush();
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     void setSideMenu(){
         uiVB.setFillWidth(true);
         colorL = new Label();
@@ -81,22 +97,24 @@ public class OnlineGameScreen extends GameScreen {
         moveL.setStyle("-fx-border-width: 1; -fx-border-style: solid;");
         uiVB.getChildren().add(moveL);
 
+        HBox scoreBox = new HBox();
+        scoreBox.setAlignment(Pos.CENTER);
+        score = gameBoard.getPoints();
+        wPts = new Label(""+score[0]);
+        wPts.setStyle("-fx-font: 32 arial;");
+        bPts = new Label(""+score[1]);
+        bPts.setStyle("-fx-font: 32 arial;");
+        ImageView wIcon = new ImageView(imagePieces[5]);
+        ImageView bIcon = new ImageView(imagePieces[11]);
+        scoreBox.getChildren().addAll(wIcon, wPts, bIcon, bPts);
+        uiVB.getChildren().add(scoreBox);
+        wIcon.setFitHeight(60);
+        bIcon.setFitHeight(60);
+        wIcon.setFitWidth(60);
+        bIcon.setFitWidth(60);
         forfeitButton = addUIButton("Forfeit");
         uiVB.getChildren().add(forfeitButton);
-        forfeitButton.setOnAction(actionEvent -> {
-            if(!finished){
-                writer.println("END");
-                writer.flush();
-            }
-            if(isHost) {
-                try {
-                    gameserver.cancel();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            updateSideMenu();
-        });
+
 
         Button exitButton = addUIButton("Exit");
         uiVB.getChildren().add(exitButton);
@@ -118,6 +136,9 @@ public class OnlineGameScreen extends GameScreen {
     }
 
     void updateSideMenu(){
+        score = gameBoard.getPoints();
+        wPts.setText(""+score[0]);
+        bPts.setText(""+score[1]);
         if(playerColor == 0){
             colorL.setText("Playing as White");
             colorL.setTextFill(Paint.valueOf("BLACK"));
@@ -150,27 +171,31 @@ public class OnlineGameScreen extends GameScreen {
                 else{
                     if(gameBoard.field[focusX][focusY].getColor() == playerColor && gameBoard.field[focusX][focusY].isMoveLegal(x,y) != 0){
                         //Movement
-                        gameBoard.parseMove(focusX, focusY, x, y);
-                        gameBoard.nextMove();
-                        toMove = -toMove+1;
-                        updateSideMenu();
-                        clearFocus();
-                        String cmd = ("" + focusX + "" + focusY + "" + x + ""  + y);
-                        writer.println(cmd);
-                        writer.flush();
-                        if(gameBoard.detectMate(gameBoard.move)) {
-                            showMate(gameBoard.getMatingPieces(-toMove+1));
-                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                            alert.setTitle("Game Over");
-                            alert.setHeaderText("Checkmate!");
-                            alert.showAndWait();
-                            finished = true;
-                            result = 1;
-                        }
-                        else{
-                            Runnable response = new Response(socket, this);
-                            Thread thread = new Thread(response);
-                            thread.start();
+                        Board tmp = new Board(gameBoard);
+                        if(tmp.parseMove(focusX, focusY, x, y) == 1){
+                            gameBoard.parseMove(focusX, focusY, x, y);
+                            gameBoard.nextMove();
+                            toMove = -toMove+1;
+                            updateSideMenu();
+                            clearFocus();
+                            String cmd = ("" + focusX + "" + focusY + "" + x + ""  + y);
+                            writer.println(cmd);
+                            writer.flush();
+                            if(gameBoard.detectMate(gameBoard.move)) {
+                                showMate(gameBoard.getMatingPieces(-toMove+1));
+                                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                                alert.setTitle("Game Over");
+                                alert.setHeaderText("Checkmate!");
+                                alert.showAndWait();
+                                finished = true;
+                                result = 1;
+                                updateSideMenu();
+                            }
+                            else{
+                                Runnable response = new Response(socket, this);
+                                Thread thread = new Thread(response);
+                                thread.start();
+                            }
                         }
                     }
                 }
@@ -204,6 +229,16 @@ public class OnlineGameScreen extends GameScreen {
             clearHighlights();
             setEnemyHighlight(sx, sy);
             setEnemyHighlight(dx, dy);
+            if(gameBoard.detectMate(gameBoard.move)) {
+                showMate(gameBoard.getMatingPieces(-toMove+1));
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Game Over");
+                alert.setHeaderText("Checkmate!");
+                alert.showAndWait();
+                finished = true;
+                result = -1;
+                updateSideMenu();
+            }
         }
     }
 

@@ -1,6 +1,7 @@
 package UI.Scenes.Online;
 
 import Server.Server;
+import UI.Scenes.MainMenu;
 import UI.Scenes.OnlineGameScreen;
 import UI.ScreenControler;
 import UI.ScreenScene;
@@ -31,8 +32,7 @@ public class HostScreen extends ScreenScene {
     Thread serverThread;
     Socket hostSocket;
 
-    boolean readyToStart = false;
-    int playerColor;
+    Thread listener;
 
 
     public HostScreen(ScreenControler c) throws java.io.IOException {
@@ -40,30 +40,40 @@ public class HostScreen extends ScreenScene {
 
         //UI
         VBox vb = new VBox();
-        vb.setAlignment(Pos.BASELINE_CENTER);
         newScene(vb);
+        vb.setId("pane");
+        scene.getStylesheets().addAll(this.getClass().getResource("../style.css").toExternalForm());
+        vb.setAlignment(Pos.BASELINE_CENTER);
         Label l = new Label("Waiting for opponent");
         Button cancelButton = new Button("Cancel");
+        cancelButton.getStyleClass().add("gameButton");
         vb.getChildren().addAll(l, cancelButton);
+
+        cancelButton.setOnAction(actionEvent -> {
+            listener.interrupt();
+
+            try {
+                hostSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                hostSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            controler.changeScene(new MainMenu(controler));
+        });
 
 
         //NETWORKING
-        System.out.println("[Kient] Stratowanie serwera");
         gameServer = new Server();
         serverThread= new Thread(gameServer);
         serverThread.start();
-
-        System.out.println("[Kient] Łączenie z serwerem");
         hostSocket = new Socket("localhost", 4999);
-        System.out.println("[Kient] Połączono");
-
-
-
-
         Runnable r = new Response(hostSocket, this);
-        Thread responseThread = new Thread(r);
-        System.out.println("[Kient] Nasłuchiwanie serwera");
-        responseThread.start();
+        listener = new Thread(r);
+        listener.start();
 
 
     }

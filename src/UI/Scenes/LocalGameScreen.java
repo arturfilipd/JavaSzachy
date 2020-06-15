@@ -2,6 +2,7 @@ package UI.Scenes;
 
 
 
+import Game.Board;
 import UI.ScreenControler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -10,11 +11,15 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Paint;
 
 public class LocalGameScreen extends GameScreen{
 
     Label colorL;
+    Label wPts;
+    Label bPts;
 
     LocalGameScreen(ScreenControler c){
        super(c);
@@ -27,8 +32,8 @@ public class LocalGameScreen extends GameScreen{
         setSideMenu();
         updateSideMenu();
         boardSP.setOnMouseClicked(event ->{
-            int x = ((int)event.getX()) / 60;
-            int y = 7 - ((int)event.getY()) / 60;
+            int x = ((int)event.getX()) / (int) pieceSize;
+            int y = 7 - ((int)event.getY()) / (int) pieceSize;
             if (x >= 0 && x < 8 && y >= 0 && y < 8){
                 parseClickOnBoard(x, y);
             }
@@ -42,19 +47,41 @@ public class LocalGameScreen extends GameScreen{
         colorL.prefWidthProperty().bind(uiVB.widthProperty());
         colorL.setPadding(new Insets(10, 10, 10, 10));
 
+        HBox scoreBox = new HBox();
+        scoreBox.setAlignment(Pos.CENTER);
+        score = gameBoard.getPoints();
+        wPts = new Label(""+score[0]);
+        wPts.setStyle("-fx-font: 32 arial;");
+        bPts = new Label(""+score[1]);
+        bPts.setStyle("-fx-font: 32 arial;");
+        ImageView wIcon = new ImageView(imagePieces[5]);
+        ImageView bIcon = new ImageView(imagePieces[11]);
+        scoreBox.getChildren().addAll(wIcon, wPts, bIcon, bPts);
+
+
         Separator s = new Separator(Orientation.HORIZONTAL);
         Button restartButton = addUIButton("Restart");
         restartButton.setOnAction(actionEvent -> {
             gameBoard.setUp();
             toMove = 0;
+            result = 0;
+            finished = false;
+            clearHighlights();
             updateSideMenu();
         });
         Button exitButton = addUIButton("Exit");
         exitButton.setOnAction(actionEvent -> controler.changeScene(new MainMenu(controler)));
-        uiVB.getChildren().addAll(colorL, s, restartButton, exitButton);
+        uiVB.getChildren().addAll(colorL, scoreBox, s, restartButton, exitButton);
+        wIcon.setFitHeight(60);
+        bIcon.setFitHeight(60);
+        wIcon.setFitWidth(60);
+        bIcon.setFitWidth(60);
 
     }
     void updateSideMenu(){
+        score = gameBoard.getPoints();
+        wPts.setText(""+score[0]);
+        bPts.setText(""+score[1]);
         if(toMove == 0){
             colorL.setText("White to play");
             colorL.setTextFill(Paint.valueOf("BLACK"));
@@ -77,6 +104,7 @@ public class LocalGameScreen extends GameScreen{
                 colorL.setTextFill(Paint.valueOf("WHITE"));
                 colorL.setStyle("-fx-background-color: black; -fx-border-width: 1; -fx-border-style: solid;");
             }
+
         }
     }
 
@@ -94,19 +122,23 @@ public class LocalGameScreen extends GameScreen{
                 else{
                     if(gameBoard.field[focusX][focusY].isMoveLegal(x,y) != 0){
                         //Movement
-                        gameBoard.parseMove(focusX, focusY, x, y);
-                        gameBoard.nextMove();
-                        toMove = -toMove+1;
-                        playerColor = toMove;
-                        updateSideMenu();
-                        clearFocus();
-                        if(gameBoard.detectMate(gameBoard.move)) {
-                            showMate(gameBoard.getMatingPieces(-toMove+1));
-                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                            alert.setTitle("Game Over");
-                            alert.setHeaderText("Checkmate!");
-                            alert.showAndWait();
+                        Board tmp = new Board(gameBoard);
+                        if(tmp.parseMove(focusX, focusY, x, y) == 1){
+                            gameBoard.parseMove(focusX, focusY, x, y);
+                            gameBoard.nextMove();
+                            toMove = -toMove+1;
+                            playerColor = toMove;
+                            updateSideMenu();
+                            clearFocus();
+                            if(gameBoard.detectMate(gameBoard.move)) {
+                                showMate(gameBoard.getMatingPieces(-toMove+1));
+                                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                                alert.setTitle("Game Over");
+                                alert.setHeaderText("Checkmate!");
+                                alert.showAndWait();
+                            }
                         }
+
                     }
                 }
             }

@@ -15,10 +15,12 @@ public class ScreenScene {
         double y = controler.stage.getHeight();
         scene = new Scene(p, x, y);
 
+
     }
 
     public void readResponse(String s){
         return;
     }
+    public void onExit(){return;}
 
 }

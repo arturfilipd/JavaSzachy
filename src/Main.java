@@ -14,6 +14,9 @@ public class Main extends Application{
     public void start(Stage primaryStage) {
 
         controler.stage = primaryStage;
+       primaryStage.setOnCloseRequest(event -> {
+            controler.closeScene();
+        });
         controler.start();
 
     }

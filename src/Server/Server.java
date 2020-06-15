@@ -1,12 +1,7 @@
 package Server;
-
-import UI.ScreenScene;
-
 import java.net.*;
 import java.io.*;
 import java.util.concurrent.ThreadLocalRandom;
-
-import static java.lang.System.exit;
 
 public class Server implements Runnable{
 
@@ -21,7 +16,6 @@ public class Server implements Runnable{
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("[Server] Czekanie na dolaczenie graczy");
 
         s1 = null;
         try {
@@ -29,7 +23,6 @@ public class Server implements Runnable{
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("[Server] Pierwszy gracz polaczony");
         InputStreamReader s1_in = null;
         try {
             s1_in = new InputStreamReader(s1.getInputStream());
@@ -51,7 +44,6 @@ public class Server implements Runnable{
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("[Server] Drugi gracz polaczony");
         InputStreamReader s2_in = null;
         try {
             s2_in = new InputStreamReader(s2.getInputStream());
@@ -65,9 +57,6 @@ public class Server implements Runnable{
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        System.out.println("[Server] Rozpoczecie gry");
-
         int firstPlayerColor = ThreadLocalRandom.current().nextInt(0, 1000);
         if(firstPlayerColor > 500) firstPlayerColor = 0; else firstPlayerColor = 1;
         s1_pr.println(firstPlayerColor);
@@ -78,17 +67,14 @@ public class Server implements Runnable{
         int move = (firstPlayerColor == 0)?1:2;
 
         do{
-            System.out.println("[Server] Interacja");
             if(move == 1){
                 //Ruch pierwszego gracza
                 String str = null;
                 try {
                     str = s1_bf.readLine();
-                    System.out.println("[Server] odebrano: " + str);
                 } catch (IOException e) {
                     exit = true;
                 }
-                System.out.println("S1: " + str);
                 s2_pr.println(str);
                 s2_pr.flush();
                 move = 2;
@@ -100,15 +86,13 @@ public class Server implements Runnable{
                 String str = null;
                 try {
                     str = s2_bf.readLine();
-                    System.out.println("[Server] odebrano: " + str);
                 } catch (IOException e) {
                     exit = true;
                 }
-                System.out.println("S2: " + str);
                 s1_pr.println(str);
                 s1_pr.flush();
                 move = 1;
-                if(str.equals("END")) exit = true;
+                if(str == null || str.equals("END")) exit = true;
             }
 
             if (Thread.currentThread().isInterrupted()) {
@@ -121,7 +105,6 @@ public class Server implements Runnable{
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //exit(0);
     }
 
     synchronized public void cancel() throws IOException {

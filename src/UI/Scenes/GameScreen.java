@@ -2,23 +2,22 @@ package UI.Scenes;
 
 import Game.Board;
 import Game.Piece;
-import Game.Players.Player;
 import UI.ScreenControler;
 import UI.ScreenScene;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
+
 import javafx.util.Duration;
 
 public class GameScreen extends ScreenScene {
@@ -27,31 +26,35 @@ public class GameScreen extends ScreenScene {
     ImageView[][] highlights = new ImageView[8][8];
     int toMove = 0;
     int playerColor = 0;
-    Player opponent;
 
     int focusX, focusY;
     boolean focusOn = false;
     boolean finished = false;
     int result = 0;
+    int[] score;
 
     StackPane boardSP;
     VBox uiVB;
     SplitPane splitPane;
+    ImageView chessBoard;
+
+    double pieceSize = 60;
+
 
     Image[] imagePieces = new Image[16];
     {
-        imagePieces[0]  = new Image("file:src/resources/pw.png");
-        imagePieces[1]  = new Image("file:src/resources/nw.png");
-        imagePieces[2]  = new Image("file:src/resources/bw.png");
-        imagePieces[3]  = new Image("file:src/resources/rw.png");
-        imagePieces[4]  = new Image("file:src/resources/qw.png");
-        imagePieces[5]  = new Image("file:src/resources/kw.png");
-        imagePieces[6]  = new Image("file:src/resources/pb.png");
-        imagePieces[7]  = new Image("file:src/resources/nb.png");
+        imagePieces[0]  = new Image("file:src/resources/wp.png");
+        imagePieces[1]  = new Image("file:src/resources/wn.png");
+        imagePieces[2]  = new Image("file:src/resources/wb.png");
+        imagePieces[3]  = new Image("file:src/resources/wr.png");
+        imagePieces[4]  = new Image("file:src/resources/wq.png");
+        imagePieces[5]  = new Image("file:src/resources/wk.png");
+        imagePieces[6]  = new Image("file:src/resources/bp.png");
+        imagePieces[7]  = new Image("file:src/resources/bn.png");
         imagePieces[8]  = new Image("file:src/resources/bb.png");
-        imagePieces[9]  = new Image("file:src/resources/rb.png");
-        imagePieces[10]  = new Image("file:src/resources/qb.png");
-        imagePieces[11]  = new Image("file:src/resources/kb.png");
+        imagePieces[9]  = new Image("file:src/resources/br.png");
+        imagePieces[10]  = new Image("file:src/resources/bq.png");
+        imagePieces[11]  = new Image("file:src/resources/bk.png");
         imagePieces[12]  = new Image("file:src/resources/blank.png");
         imagePieces[13] = new Image("file:src/resources/focus.png");
         imagePieces[14] = new Image("file:src/resources/enemy.png");
@@ -60,6 +63,7 @@ public class GameScreen extends ScreenScene {
     Image chessBoardImage = new Image("file:src/resources/chessboard.png");
 
     Board gameBoard = new Board();
+    GridPane piecesGrid;
 
     void setPieceImages(ImageView[][] iv, Image[] img) {
         for (int x = 0; x < 8; x++)
@@ -98,7 +102,11 @@ public class GameScreen extends ScreenScene {
         focusX = x;
         for (int a = 0; a < 8; a++)
             for(int b = 0; b < 8; b++)
-                if(gameBoard.field[x][y].isMoveLegal(a, b) != 0) setTip(a, b);
+                if(gameBoard.field[x][y].isMoveLegal(a, b) != 0){
+                    Board tmp = new Board(gameBoard);
+                    if(tmp.parseMove(x, y, a, b) == 1)
+                        setTip(a, b);
+                }
     }
 
     void showMate(int [] pieces){
@@ -133,18 +141,22 @@ public class GameScreen extends ScreenScene {
 
         boardSP = new StackPane();
         uiVB = new VBox();
+        uiVB.setMinWidth(250);
         boardSP.setId("pane");
         scene.getStylesheets().addAll(this.getClass().getResource("style.css").toExternalForm());
         splitPane = new SplitPane();
         splitPane.getItems().addAll(boardSP, uiVB);
         mainVB.getChildren().add(splitPane);
+        splitPane.prefWidthProperty().bind(mainVB.widthProperty());
+        boardSP.prefWidthProperty().bind(splitPane.widthProperty());
+
+
         splitPane.prefHeightProperty().bind(mainVB.heightProperty());
-        GridPane highlightsGrid = new GridPane();
-        GridPane piecesGrid = new GridPane();
-        ImageView chessBoard = new ImageView(chessBoardImage);
+        piecesGrid = new GridPane();
+        chessBoard = new ImageView(chessBoardImage);
+
         chessBoard.setPreserveRatio(true);
-        chessBoard.setFitWidth(boardSP.getWidth());
-        boardSP.getChildren().addAll(chessBoard, highlightsGrid, piecesGrid);
+        boardSP.getChildren().addAll(chessBoard, piecesGrid);
 
         boardSP.setAlignment(Pos.TOP_LEFT);
         for (int x = 0; x < 8; x++){
@@ -157,6 +169,10 @@ public class GameScreen extends ScreenScene {
                 piecesGrid.getChildren().add(pieces[x][y]);
             }
         }
+        setGameBoardSize();
+
+        scene.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> setGameBoardSize());
+        scene.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> setGameBoardSize());
 
 
 
@@ -165,7 +181,7 @@ public class GameScreen extends ScreenScene {
         //Gameplay
         gameBoard.setUp();
         setPieceImages(pieces, imagePieces);
-        Timeline updater = new Timeline(new KeyFrame(Duration.seconds(0.2), new EventHandler<ActionEvent>() {
+        Timeline updater = new Timeline(new KeyFrame(Duration.seconds(0.1), new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 setPieceImages(pieces, imagePieces);
@@ -179,6 +195,28 @@ public class GameScreen extends ScreenScene {
     void updateSideMenu(){
 
     }
+
+    void setGameBoardSize(){
+        double s;
+        if(scene.getWidth()-250 > scene.getHeight()){
+           s = Math.floor(scene.getHeight() / 8) * 8;
+
+        }
+        else{
+            s = Math.floor((scene.getWidth()-250)/8) * 8;
+        }
+        chessBoard.setFitHeight(s);
+        chessBoard.setFitWidth(s);
+        pieceSize = s/8;
+        for(int x = 0; x < 8; x ++)
+            for(int y = 0; y < 8; y++){
+                pieces[x][y].setFitWidth(s/8);
+                highlights[x][y].setFitWidth(s/8);
+                pieces[x][y].setFitHeight(s/8);
+                highlights[x][y].setFitHeight(s/8);
+            }
+    }
+
 
     Button addUIButton(String label){
         Button b = new Button(label);

@@ -18,6 +18,10 @@ public class ScreenControler {
         stage.show();
     }
 
+    public void closeScene(){
+        currentScene.onExit();
+    }
+
     public void changeScene(ScreenScene s){
         currentScene = s;
         stage.setScene(currentScene.scene);

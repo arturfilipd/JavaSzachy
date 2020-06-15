@@ -24,14 +24,16 @@ public class Response implements Runnable {
         }
         BufferedReader reader = new BufferedReader(in);
         String s = null;
-        try {
-            s = reader.readLine();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        final String msg = s;
-        Platform.runLater(()->scene.readResponse(msg));
+
+            try {
+                s = reader.readLine();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            final String msg = s;
+            if (!Thread.interrupted())
+                Platform.runLater(() -> scene.readResponse(msg));
 
     }
 

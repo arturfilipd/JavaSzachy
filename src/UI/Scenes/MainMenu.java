@@ -6,12 +6,6 @@ import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-
-
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 
@@ -21,7 +15,7 @@ public class MainMenu extends ScreenScene{
         controler = c;
         VBox vb = new VBox();
         vb.setAlignment(Pos.BASELINE_LEFT);
-        this.scene = new Scene(vb, 680, 480);
+        newScene(vb);
 
 
         Button soloGameButton = new Button("Solo game");

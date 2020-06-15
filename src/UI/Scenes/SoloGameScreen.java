@@ -9,6 +9,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Paint;
 
 import java.io.IOException;
@@ -24,6 +26,8 @@ public class SoloGameScreen extends GameScreen {
     //UI elements
     Label colorL;
     Label moveL;
+    Label wPts;
+    Label bPts;
 
     Thread engineThreat;
 
@@ -68,14 +72,25 @@ public class SoloGameScreen extends GameScreen {
         colorL.setAlignment(Pos.BASELINE_CENTER);
         colorL.prefWidthProperty().bind(uiVB.widthProperty());
         colorL.setPadding(new Insets(10, 10, 10, 10));
-        uiVB.getChildren().add(colorL);
+
+
+        HBox scoreBox = new HBox();
+        scoreBox.setAlignment(Pos.CENTER);
+        score = gameBoard.getPoints();
+        wPts = new Label(""+score[0]);
+        wPts.setStyle("-fx-font: 32 arial;");
+        bPts = new Label(""+score[1]);
+        bPts.setStyle("-fx-font: 32 arial;");
+        ImageView wIcon = new ImageView(imagePieces[5]);
+        ImageView bIcon = new ImageView(imagePieces[11]);
+        scoreBox.getChildren().addAll(wIcon, wPts, bIcon, bPts);
 
         moveL = new Label();
         moveL.prefWidthProperty().bind(uiVB.widthProperty());
         moveL.setAlignment(Pos.BASELINE_CENTER);
         moveL.setPadding(new Insets(10, 10, 10, 10));
         moveL.setStyle("-fx-border-width: 1; -fx-border-style: solid;");
-        uiVB.getChildren().add(moveL);
+        uiVB.getChildren().addAll(colorL,moveL, scoreBox);
 
         Button exitButton = addUIButton("Quit Match");
         exitButton.setOnAction(actionEvent -> {
@@ -87,6 +102,9 @@ public class SoloGameScreen extends GameScreen {
     }
 
     void updateSideMenu(){
+        score = gameBoard.getPoints();
+        wPts.setText(""+score[0]);
+        bPts.setText(""+score[1]);
         if(playerColor == 0){
             colorL.setText("Playing as White");
             colorL.setTextFill(Paint.valueOf("BLACK"));
