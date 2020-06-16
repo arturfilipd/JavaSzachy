@@ -58,8 +58,8 @@ public class SoloGameScreen extends GameScreen {
         engine = new Engine(-playerColor+1, engineDifficulty);
         setSideMenu();
         boardSP.setOnMouseClicked(event ->{
-            int x = ((int)event.getX()) / 60;
-            int y = 7 - ((int)event.getY()) / 60;
+            int x = ((int)event.getX()) / (int)pieceSize;
+            int y = 7 - ((int)event.getY()) / (int)pieceSize;
             if (x >= 0 && x < 8 && y >= 0 && y < 8){
                 parseClickOnBoard(x, y);
             }
@@ -84,6 +84,10 @@ public class SoloGameScreen extends GameScreen {
         ImageView wIcon = new ImageView(imagePieces[5]);
         ImageView bIcon = new ImageView(imagePieces[11]);
         scoreBox.getChildren().addAll(wIcon, wPts, bIcon, bPts);
+        wIcon.setFitHeight(60);
+        bIcon.setFitHeight(60);
+        wIcon.setFitWidth(60);
+        bIcon.setFitWidth(60);
 
         moveL = new Label();
         moveL.prefWidthProperty().bind(uiVB.widthProperty());
