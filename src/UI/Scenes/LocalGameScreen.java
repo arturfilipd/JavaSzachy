@@ -66,6 +66,7 @@ public class LocalGameScreen extends GameScreen{
             toMove = 0;
             result = 0;
             finished = false;
+            playerColor = 0;
             clearHighlights();
             updateSideMenu();
         });

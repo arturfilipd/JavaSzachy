@@ -1,18 +1,13 @@
 package Game;
-
-
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
+
 
 public class Board {
 
     public int move = 0;
 
     public Piece[][] field = new Piece[8][8];
-    //public LinkedList<Piece> whitePieces = new LinkedList<>();
-    //public LinkedList<Piece> blackPieces = new LinkedList<>();
-   // public LinkedList<Piece> pieces = new LinkedList<>();
+
 
 
     public void setUp() {
