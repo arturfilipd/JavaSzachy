@@ -13,7 +13,6 @@ public class EarlyGameEvaluator extends AI.Evaluation.Evaluator {
 
         //Criteria
         float[] pts = {0.f, 0.f};
-
         float[] pieceValues = {1.f, 3.f, 3.f, 4.5f, 9.f, 0.f};
 
         ////Occupation of Center

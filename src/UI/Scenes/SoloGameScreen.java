@@ -98,7 +98,8 @@ public class SoloGameScreen extends GameScreen {
 
         Button exitButton = addUIButton("Quit Match");
         exitButton.setOnAction(actionEvent -> {
-            engineThreat.interrupt();
+            if(engineThreat != null)
+                engineThreat.interrupt();
             controler.changeScene(new MainMenu(controler));
         });
         uiVB.getChildren().add(exitButton);

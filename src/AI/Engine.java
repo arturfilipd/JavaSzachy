@@ -83,11 +83,6 @@ public class Engine {
         }
         int []bestMove = possibleMoves.get(bestM);
         if(depth == maxDepth && USING_RANDOM_MOVES){
-            String[] a = {"a", "b", "c", "d", "e", "f", "g", "h"};
-            System.out.println("Three best moves: ");
-            System.out.println("1. " + a[possibleMoves.get(best3M[0])[0]] + (possibleMoves.get(best3M[0])[1]+1) + " -> "  + a[possibleMoves.get(best3M[0])[2]] + (possibleMoves.get(best3M[0])[3]+1) + " " + best3R[0]);
-            System.out.println("2. " + a[possibleMoves.get(best3M[1])[0]] + (possibleMoves.get(best3M[1])[1]+1) + " -> "  + a[possibleMoves.get(best3M[1])[2]] + (possibleMoves.get(best3M[1])[3]+1) + " " + best3R[1]);
-            System.out.println("3. " + a[possibleMoves.get(best3M[2])[0]] + (possibleMoves.get(best3M[2])[1]+1) + " -> "  + a[possibleMoves.get(best3M[2])[2]] + (possibleMoves.get(best3M[2])[3]+1) + " " + best3R[2]);
             Random rand = new Random();
             int chosenM = rand.nextInt(100);
             if(chosenM > 50){
