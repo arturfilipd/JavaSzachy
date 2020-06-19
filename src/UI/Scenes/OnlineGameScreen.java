@@ -214,6 +214,7 @@ public class OnlineGameScreen extends GameScreen {
             alert.showAndWait();
             finished = true;
             result = 1;
+            updateSideMenu();
         }
         else {
             int sx = msg.charAt(0) - '0';
