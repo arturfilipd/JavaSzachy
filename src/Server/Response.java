@@ -29,7 +29,7 @@ public class Response implements Runnable {
                 s = reader.readLine();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
-                e.printStackTrace();
+               return;
             }
             final String msg = s;
             if (!Thread.interrupted())

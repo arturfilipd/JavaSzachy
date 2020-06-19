@@ -23,6 +23,7 @@ public class Server implements Runnable{
         } catch (IOException e) {
             e.printStackTrace();
         }
+        if (Thread.currentThread().isInterrupted()) return;
         InputStreamReader s1_in = null;
         try {
             s1_in = new InputStreamReader(s1.getInputStream());
@@ -36,6 +37,7 @@ public class Server implements Runnable{
         } catch (IOException e) {
             e.printStackTrace();
         }
+        if (Thread.currentThread().isInterrupted()) return;
 
         s2 = null;
 
@@ -43,6 +45,14 @@ public class Server implements Runnable{
             s2 = ss.accept();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        if (Thread.currentThread().isInterrupted()){
+            try {
+                ss.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return;
         }
         InputStreamReader s2_in = null;
         try {

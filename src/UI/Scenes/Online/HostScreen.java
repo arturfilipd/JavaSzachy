@@ -1,28 +1,15 @@
 package UI.Scenes.Online;
-
 import Server.Server;
 import UI.Scenes.MainMenu;
 import UI.Scenes.OnlineGameScreen;
 import UI.ScreenControler;
 import UI.ScreenScene;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-
 import Server.Response;
-import javafx.util.Duration;
-
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
 
 public class HostScreen extends ScreenScene {
@@ -31,7 +18,6 @@ public class HostScreen extends ScreenScene {
     Server gameServer;
     Thread serverThread;
     Socket hostSocket;
-
     Thread listener;
 
 
@@ -51,6 +37,12 @@ public class HostScreen extends ScreenScene {
 
         cancelButton.setOnAction(actionEvent -> {
             listener.interrupt();
+            try {
+                Socket tmp = new Socket("localhost", 4999);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            serverThread.interrupt();
 
             try {
                 hostSocket.close();
