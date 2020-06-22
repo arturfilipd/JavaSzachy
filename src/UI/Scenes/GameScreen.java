@@ -43,24 +43,24 @@ public class GameScreen extends ScreenScene {
 
     Image[] imagePieces = new Image[16];
     {
-        imagePieces[0]  = new Image("file:src/resources/wp.png");
-        imagePieces[1]  = new Image("file:src/resources/wn.png");
-        imagePieces[2]  = new Image("file:src/resources/wb.png");
-        imagePieces[3]  = new Image("file:src/resources/wr.png");
-        imagePieces[4]  = new Image("file:src/resources/wq.png");
-        imagePieces[5]  = new Image("file:src/resources/wk.png");
-        imagePieces[6]  = new Image("file:src/resources/bp.png");
-        imagePieces[7]  = new Image("file:src/resources/bn.png");
-        imagePieces[8]  = new Image("file:src/resources/bb.png");
-        imagePieces[9]  = new Image("file:src/resources/br.png");
-        imagePieces[10]  = new Image("file:src/resources/bq.png");
-        imagePieces[11]  = new Image("file:src/resources/bk.png");
-        imagePieces[12]  = new Image("file:src/resources/blank.png");
-        imagePieces[13] = new Image("file:src/resources/focus.png");
-        imagePieces[14] = new Image("file:src/resources/enemy.png");
-        imagePieces[15] = new Image("file:src/resources/tip.png");
+        imagePieces[0]  = new Image("file:resources/wp.png");
+        imagePieces[1]  = new Image("file:resources/wn.png");
+        imagePieces[2]  = new Image("file:resources/wb.png");
+        imagePieces[3]  = new Image("file:resources/wr.png");
+        imagePieces[4]  = new Image("file:resources/wq.png");
+        imagePieces[5]  = new Image("file:resources/wk.png");
+        imagePieces[6]  = new Image("file:resources/bp.png");
+        imagePieces[7]  = new Image("file:resources/bn.png");
+        imagePieces[8]  = new Image("file:resources/bb.png");
+        imagePieces[9]  = new Image("file:resources/br.png");
+        imagePieces[10]  = new Image("file:resources/bq.png");
+        imagePieces[11]  = new Image("file:resources/bk.png");
+        imagePieces[12]  = new Image("file:resources/blank.png");
+        imagePieces[13] = new Image("file:resources/focus.png");
+        imagePieces[14] = new Image("file:resources/enemy.png");
+        imagePieces[15] = new Image("file:resources/tip.png");
     }
-    Image chessBoardImage = new Image("file:src/resources/chessboard.png");
+    Image chessBoardImage = new Image("file:resources/chessboard.png");
 
     Board gameBoard = new Board();
     GridPane piecesGrid;
